@@ -193,6 +193,21 @@ class Usuario {
 		);
 	}
 
+	//Método DELETE: Criaremos o método que irá excluir um registo do banco. 
+
+	public function delete(){
+		$sql = new Sql();
+
+		$sql->query("DELETE FROM tb_usuario WHERE idusuario = :ID", array(
+			":ID"=>$this->getIdUsuario()
+			));
+
+		//Agora que os dados foram apagados do Banco, vamos fazer com que eles também sejam apagados do objeto
+		$this->setIdUsuario(0);
+		$this->setDesLogin("");
+		$this->setDesSenha("");
+		$this->setDtCadastro(new DateTime());
+	}
 }
 
 ?>

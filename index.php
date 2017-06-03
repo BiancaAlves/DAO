@@ -33,13 +33,34 @@ require_once("config.php");
 
 //Usaremos o método insert() para inserir um novo usuário no Banco
 //Primeiro, criaremos um novo objeto do tipo usuario. Como criamos um método construtor que já receberá o login e senha, o passaremos como parâmetro.
-$aluno = new Usuario("aluno2", "degv");
+//$aluno = new Usuario("aluno2", "degv");
 
 //Considerando que esses valores que passamos como parâmetro não existem no Banco de Dados ainda, somente no objeto. Para colocarmos no Banco, executaremos sobre esse objeto o método insert.
-$aluno->insert();
+//$aluno->insert();
 
 //O método insert() retorna o ID criado, além dos outros valores e coloca no objeto. Vamos ver se isso realmente aconteceu ao imprimir o objeto
-echo $aluno;
+//echo $aluno;
 
+//Abaixo, utilizaremos o método update criado para realizar alterações em um usuário já existente
+
+//$user = new Usuario();
+
+//Para fazer o update, primeiro precisaremos carregar as informações do usuário desejado, do Banco para o objeto.
+//$user->loadById(8);
+
+//Agora, o método update. Vamos deixar o mesmo usuário, só mudaremos a senha.
+//$user->update("aluno2", "joile");
+
+//Para conferir se tudo deu certo, imprimiremos na tela
+//echo $user;
+
+//Abaixo, utilizaremos o método delete() para remover um registro do banco.
+
+$blah = new Usuario();
+
+$blah->loadById(2);
+$blah->delete();
+
+echo $blah;
 
 ?>
