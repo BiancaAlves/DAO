@@ -50,14 +50,14 @@ class Sql extends PDO {
 
 	//O método abaixo recebe um statement já pronto e troca um ID por um valor. É um método privado, pois só é usado dentro da classe e dentro do método setParams
 
-	private function setParam($statment, $key, $value){
-		$statment->bindParam($key, $value);
+	private function setParam($statement, $key, $value){
+		$statement->bindParam($key, $value);
 	}
 
 	//O método abaixo executa o método setParam dentro de um foreach, repetidas vezes. Ele recebe a variável $statement, que terá seus IDs substituídos, e um array de valores com referência, onde o título é o ID e o valor é o valor que será atribuído ao ID.
 	public function setParams($statement, $parameters = array()){
 		foreach ($parameters as $key => $value) {
-			$this->setParam($key, $value);
+			$this->setParam($statement, $key, $value);
 		}
 	}
 

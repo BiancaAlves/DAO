@@ -2,11 +2,17 @@
 
 require_once("config.php");
 
-$sql = new Sql();
+//$sql = new Sql();
 
 //Agora fica muito mais fácil executar comandos no banco:
-$usuarios = $sql->select("SELECT * FROM tb_usuario");
+//$usuarios = $sql->select("SELECT * FROM tb_usuario");
 
-echo json_encode($usuarios);
+//echo json_encode($usuarios);
+
+$fulano = new Usuario();
+
+$fulano->loadById(6);
+
+echo $fulano;
 
 ?>
