@@ -99,6 +99,55 @@ class Usuario {
 			));
 	}
 
+	//O método estático abaixo retorna uma lista com todos os usuários da tabela
+
+	public static function getList (){
+		$sql = new Sql();
+
+		return $sql->select("SELECT * FROM tb_usuario ORDER BY idusuario;");
+	}
+
+	//Criando um novo método estático para pesquisar por um determinado login no Banco. O login que será pesquisado é passado como parâmetro:
+
+	public static function search($login){
+		//Instanciando a classe Sql
+		$sql = new Sql();
+
+		//Abaixo faremos um comando SELECT que seleciona tudo da tabela usuário onde o deslogin é de acordo com o conteúdo do id SEARCH, ordenando pelo deslogin.
+		return $sql->select("SELECT * FROM tb_usuario WHERE deslogin LIKE :SEARCH ORDER BY deslogin", array(
+			//Qual é o conteúdo do id SEARCH? Colocamos que é tudo o que contenha o login passado como parâmetro, não importanto o início nem o fim, mas sim um conteúdo. Como isso é uma pesquisa, pode ser que não saia exatamente igual, por isso não seremos exigentes.
+			":SEARCH" => "%" .$login . "%"
+			));
+	}
+
+	//A função abaixo será responsável por realizar um login. Recebendo como parâmetro o login e a senha, retornará os dados do usuário.
+	public function login($login, $password){
+		$sql = new Sql();
+
+		//Abaixo, colocaremos na variável user o resultado da pesquisa por login e senha
+		
+		$results = $sql->select("SELECT * FROM tb_usuario WHERE deslogin = :LOGIN AND dessenha = :PASSWORD", array(
+			":LOGIN"=>$login,
+			":PASSWORD"=>$password
+		));
+
+		//Faremos um if para verificar se a pesquisa realmente retornou algo
+		if (count($results) > 0) {
+			//Se o resultado é positivo, como é uma matriz, colocaremos a primeira linha da mesma na variável row
+			$row = $results[0];
+
+			//Abaixo, carregamos o resultado do SELECT nos atributos do objeto no qual esse método será executado.
+			$this->setIdUsuario($row['idusuario']);
+			$this->setDesLogin($row['deslogin']);
+			$this->setDesSenha($row['dessenha']);
+			$this->setDtCadastro(new DateTime ($row['dtcadastro']));
+		} else {
+			//Pode ser que os parâmetros passados para login estejam errados. Por isso colocaremos um erro neste else
+			throw new Exception("Login e/ou senha inválidos.");
+		}
+
+	}
+
 }
 
 ?>
