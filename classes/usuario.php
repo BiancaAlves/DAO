@@ -74,16 +74,10 @@ class Usuario {
 		//Agora, precisamos conferir se esse SELECT realmente retornou algo. Talvez o ID pesquisado não exista. Faremos isso com um IF e usando o método ISSET (se não é nulo, retorna true)
 
 		if (isset($result[0])){
-			//Como é um array de arrays, a posição 0 desse array tem um array em cuja posição 0 está a linha que solicitamos.
-			$row = $result[0];
+			//Como é uma matriz, sua posição 0 tem um array que é a linha que solicitamos.
 
-			//Os campos encontrados serão setados nos atributos da classe
-			$this->setIdUsuario($row['idusuario']);
-			$this->setDesLogin($row['deslogin']);
-			$this->setDesSenha($row['dessenha']);
-			$this->setDtCadastro(new DateTime ($row['dtcadastro']));
-
-			//No setDtCadastro foi usado o método DateTime para que a data venha formatada
+			//Os campos encontrados serão setados nos atributos da classe através do método setData
+			$this->setData($result[0]);
 		}
 	}
 
@@ -133,19 +127,70 @@ class Usuario {
 
 		//Faremos um if para verificar se a pesquisa realmente retornou algo
 		if (count($results) > 0) {
-			//Se o resultado é positivo, como é uma matriz, colocaremos a primeira linha da mesma na variável row
-			$row = $results[0];
-
-			//Abaixo, carregamos o resultado do SELECT nos atributos do objeto no qual esse método será executado.
-			$this->setIdUsuario($row['idusuario']);
-			$this->setDesLogin($row['deslogin']);
-			$this->setDesSenha($row['dessenha']);
-			$this->setDtCadastro(new DateTime ($row['dtcadastro']));
+		 	
+		 	//Agora, passamos a primeira linha da matriz results como parâmetro para o método local setData
+			$this->setData($results[0]);
 		} else {
 			//Pode ser que os parâmetros passados para login estejam errados. Por isso colocaremos um erro neste else
 			throw new Exception("Login e/ou senha inválidos.");
 		}
+	}
 
+
+
+	//O método setData recebe como parâmetro um array de dados, e coloca-os nos atributos do objeto, com os métodos set.
+	public function setData($data){
+		$this->setIdUsuario($data['idusuario']);
+		$this->setDesLogin($data['deslogin']);
+		$this->setDesSenha($data['dessenha']);
+		$this->setDtCadastro(new DateTime ($data['dtcadastro']));
+		//No setDtCadastro foi usado o método DateTime para que a data venha formatada
+	}
+
+
+
+	//Método de Insert: Criando um novo usuário
+	public function insert(){
+		$sql = new Sql();
+
+		/*
+
+		Em vez de usarmos o método query, usaremos o select e passaremos como parâmetro uma procedure, que irá inserir o LOGIN e a SENHA dos IDs. 
+		
+		Criaremos essa procedure no Banco de Dados (Uma procedure é como uma função em MySQL que contém um conjunto de instruções). Quando a procedure executar, no fim de sua execução ela chamará uma função no Banco de Dados que irá retornar qual foi o ID gerado na tabela. Ou seja, teremos todos os valores do novo usuário criado...
+		*/
+		$results = $sql->select("CALL sp_usuario_insert(:LOGIN, :SENHA)", array(
+				":LOGIN"=>$this->getDesLogin(),
+				":SENHA"=>$this->getDesSenha()
+			));
+
+		//E chamaremos o método setData para colocar todos esses valores no objeto
+		if (count($results)>0){
+			$this->setData($results[0]);
+		}
+	}
+
+	//Abaixo, um método construtor que serve para que, assim que um objeto for criado, já sejam setados o login e a senha. A passagem destes parâmetros será opcional, para que sejam usados apenas quando se estiver criando um novo usuário no banco
+	public function __construct ($login = "", $senha = ""){
+		$this->setDesLogin($login);
+		$this->setDesSenha($senha);
+	}
+
+	//Método de UPDATE: Esse método serve para realizar alterações em algum cadastro já existente no banco. Recebe como parâmetro os novos login e senha.
+	public function update($login, $senha){
+
+		//Aqui, os valores passados são setados como atributos do objeto.
+		$this->setDesLogin($login);
+		$this->setDesSenha($senha);
+
+		//Nas linhas abaixo, são colocadas no banco os logins e senhas do objeto.
+		$sql = new Sql();
+		$sql->query("UPDATE tb_usuario SET deslogin = :LOGIN, dessenha = :SENHA WHERE idusuario = :ID", array(
+				":LOGIN"=>$this->getDesLogin(),
+				":SENHA"=>$this->getDesSenha(),
+				":ID"=>$this->getIdUsuario()
+			)
+		);
 	}
 
 }
